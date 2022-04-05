@@ -10,8 +10,8 @@
 
     - name: Launch instance
       ec2:
-        aws_access_key: AKIAR4IP2HGXIUW3DZ54
-        aws_secret_key: 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
+        aws_access_key: xxxxx
+        aws_secret_key: xxxxx
         instance_type: t2.micro
         image: ami-01c592dda54e43c1a 
         region: ca-central-1
