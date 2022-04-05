@@ -1,0 +1,25 @@
+---
+# tasks file for wiki_tools
+
+- name: Installation PHP 7.4
+  apt: name=php7.4 state=present
+
+- name: installation de tools
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - php
+    - php-apcu
+    - php-intl
+    - php-mbstring
+    - php-xml
+    - php-mysql
+    - mariadb-server
+    - apache2
+    - libapache2-mod-php
+    - python3-pip
+    - sudo
+    
+- pip:
+    name: pymysql

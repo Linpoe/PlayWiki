@@ -1,0 +1,22 @@
+- name: install mediawiki
+  hosts: [wikiclient]
+  gather_facts: yes
+  vars:
+    hostip: 192.168.1.33
+    wikiusers: wikiuser ## user for mysqldb and mediawiki
+    DBname: wikidb ## name of mysqldb 
+    DBserv: localhost ## adresse ip de
+    DBpasswd: "" ## Mot de passe de mysqldb
+    ScriptPath: /mediawiki
+    Sitename: linpowiki ## name of mediawiki account
+    passwd: mediawiki137 ## mot de passe admin mediawiki
+    
+  
+  roles:
+    - wiki_tools
+    - dbwiki_config
+
+
+## acces browser : http://192.168.1.33/mediawiki/index.php/Main_Page
+## compte: utilisateur: wikiuser
+## Mot de passe: mediawiki-1.37.2

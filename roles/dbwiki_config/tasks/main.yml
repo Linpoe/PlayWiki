@@ -1,0 +1,38 @@
+---
+#tasks file for dbwiki_config
+
+- name: Unarchive a file that needs to be downloaded
+  unarchive:
+    src: https://releases.wikimedia.org/mediawiki/1.37/mediawiki-1.37.2.tar.gz
+    dest: /var/www/html
+    remote_src: yes
+
+- name: remove mediawiki if present
+  file:
+    path: /var/www/html/mediawiki/
+    state: absent
+    
+- name: change name
+  command: mv /var/www/html/mediawiki-1.37.2 /var/www/html/mediawiki creates=/var/www/html/mediawiki
+
+- name: config /root/my.cnf
+  template: src=templates/my_cnf.j2 dest=/root/.my.cnf mode=0640
+
+- name: Create a new database wikidb
+  mysql_db:
+    name: wikidb
+    state: present
+
+- mysql_user:
+    name: "{{ wikiusers }}"
+    priv: '*.*:ALL'
+    state: present
+
+- name: remove LocalSettings if present
+  file:
+    path: /var/www/html/mediawiki/LocalSettings.php
+    state: absent
+
+- name: run script /install.php
+  ansible.builtin.shell: 'php /var/www/html/mediawiki/maintenance/install.php --dbuser "{{ wikiusers }}" --dbserver "{{ DBserv }}" --dbpass "{{ DBpasswd }}" --server "{{ hostip }}" --scriptpath "{{ ScriptPath }}" --dbname "{{ Sitename }}" --pass "{{ passwd }}" ["{{ DBname }}"] "{{ wikiusers }}"'
+  
