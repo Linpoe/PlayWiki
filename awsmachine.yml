@@ -1,0 +1,22 @@
+- name: Create an ec2 instance
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name:
+      apt:
+        name: python3-pip
+    - pip: 
+        name: 
+          - boto
+          - boto3
+          - botocore
+
+    - name: Launch instance
+      ec2_instance:
+        name: linpotomcat
+        key_name: linpoCanada
+        aws_access_key: xxxxxxxxxxxxxxxxxxxxxxxxx
+        aws_secret_key: xxxxxxxxxxxxxxxxxxxxxxxxxx
+        instance_type: t2.medium
+        image_id: ami-097e309002741b029
+        region: ca-central-1
