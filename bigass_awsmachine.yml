@@ -1,0 +1,62 @@
+---
+
+ - hosts: localhost
+   connection: local
+   become: true
+   gather_facts: False
+
+   vars:
+    region: us-west-1
+    instance_type: t2.micro
+    ami: ami-01f87c43e618bf8f0 # ubuntu
+    hosts_file: /etc/ansible/hosts
+
+   tasks:
+    - name: Create security group
+      ec2_group:
+       aws_access_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+       aws_secret_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+       name: "FW_DOCKER"
+       description: "docker SG"
+       region: "{{ region }}"
+       rules:
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+
+    - name: Create an EC2 key
+      ec2_key:
+       aws_access_key: xxxxxxxxxxxxxxxxxxxxxxxxxx
+       aws_secret_key: xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+       name: "docker_marc"
+       region: "{{ region }}"
+      register: ec2_key
+    - name: Save private key (PEM file)
+      copy: content="{{ec2_key.key.private_key}}" dest=/etc/ansible/docker.pem mode=0600
+      when: ec2_key.changed
+    - name: Create an ec2 instance
+      ec2:
+       aws_access_key: xxxxxxxxxxxxxxxxxxxxxxxxx
+       aws_secret_key: xxxxxxxxxxxxxxxxxxxxxxxxxx
+       key_name: docker_marc
+       group: FW_DOCKER # security group name
+       instance_type: "{{ instance_type}}"
+       image: "{{ ami }}"
+       wait: true
+       region: "{{ region }}"
+       count: 1 # default
+       count_tag:
+        Name: docker_linpo
+       instance_tags:
+        Name: docker_linc
+      register: ec2
+    - name: debug
+      debug:
+       msg: "{{ ec2 }}"
+    - name: Save IP to inventory file
+      lineinfile:
+       dest: "{{hosts_file}}"
+       insertafter: '\[webservers\]'
+       line: "{{item.public_ip}}"
+      with_items: "{{ec2.instances}}"
